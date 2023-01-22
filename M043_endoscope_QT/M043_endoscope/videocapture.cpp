@@ -1,5 +1,7 @@
 #include "videocapture.h"
 #include <QDebug>
+#include <QMessageBox>
+#include <iostream>
 
 VideoCapture::VideoCapture(QObject *parent)
     : QThread{parent}
@@ -11,9 +13,22 @@ void VideoCapture::SetCameraIndex(int index)
     this->index_ = static_cast<uint8_t>(index);
 }
 
+bool VideoCapture::GetRecordingStatus()
+{
+    return mRecordingStatus;
+}
+
+void VideoCapture::SetRecordingMode(bool status)
+{
+    mRecordingStatus = status;
+}
+
 void VideoCapture::run()
 {
     mVideoCap = cv::VideoCapture(this->index_);
+    mVideoWriter = cv::VideoWriter("outcpp.mp4", cv::VideoWriter::fourcc('a', 'v', 'c', '1') , 10, cv::Size_(640, 480));
+
+
     if (mVideoCap.isOpened())
     {
         while (true)
@@ -22,9 +37,20 @@ void VideoCapture::run()
             if (! mFrame.empty())
             {
                 mPixmap = cvMatToQPixmap(mFrame);
+                // TODO:
+                // make sure that you can stop and rerecord one more time
+
+                if (mRecordingStatus)
+                {
+                    mVideoWriter.write(mFrame);
+                }
                 emit newPixmapCaptured();
             }
         }
+    }
+    else
+    {
+        emit openDeviceError();
     }
 }
 

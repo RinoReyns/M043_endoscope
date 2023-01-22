@@ -3,6 +3,7 @@
 #include "videocapture.h"
 #include "deviceenumerator.h"
 #include "QDebug"
+#include "QMessageBox"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,6 +20,13 @@ MainWindow::MainWindow(QWidget *parent)
         //    by default set the highest
         // 2. save capture to file.
         ui->opencvFrame->setPixmap(mOpenCV_videoCapture->pixmap().scaled(640, 480)); // set proper size
+    });
+
+    connect(mOpenCV_videoCapture, &VideoCapture::openDeviceError, this, [&]()
+    {
+        QMessageBox messageBox;
+        messageBox.critical(0,"Error","Device can't be open. Please make sure that you enabled access to your camera.");
+        messageBox.setFixedSize(500, 200);
     });
 
 }
@@ -52,3 +60,18 @@ void MainWindow::on_InitOpenCV_button_clicked()
     mOpenCV_videoCapture->SetCameraIndex(ui->endpointsListcomboBox->currentIndex());
     mOpenCV_videoCapture->start(QThread::HighestPriority);
 }
+
+void MainWindow::on_startRecording_clicked()
+{
+    bool status = mOpenCV_videoCapture->GetRecordingStatus();
+    if (status)
+    {
+        ui->startRecording->setText("Start Recording");
+    }
+    else
+    {
+        ui->startRecording->setText("Stop Recording");
+    }
+    mOpenCV_videoCapture->SetRecordingMode(!status);
+}
+

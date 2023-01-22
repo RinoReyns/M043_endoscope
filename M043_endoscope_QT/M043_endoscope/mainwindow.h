@@ -22,6 +22,7 @@ private:
 
 private slots:
     void on_InitOpenCV_button_clicked();
+    void on_startRecording_clicked();
 
 private:
     Ui::MainWindow *ui;

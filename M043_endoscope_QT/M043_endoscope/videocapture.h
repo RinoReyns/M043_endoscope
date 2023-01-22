@@ -12,6 +12,8 @@ class VideoCapture : public QThread
 public:
     VideoCapture(QObject *parent);
     void SetCameraIndex(int index);
+    void SetRecordingMode(bool status);
+    bool GetRecordingStatus();
 
     QPixmap pixmap() const
     {
@@ -20,6 +22,7 @@ public:
 
 signals:
     void newPixmapCaptured();
+    void openDeviceError();
 
 protected:
     void run() override;
@@ -28,9 +31,11 @@ private:
     QPixmap mPixmap;
     cv::Mat mFrame;
     cv::VideoCapture mVideoCap;
+    cv::VideoWriter mVideoWriter;
     uint8_t index_ = 0;
     QImage cvMatToQImage(const cv::Mat &inMat);
     QPixmap cvMatToQPixmap(const cv::Mat &inMat);
+    bool mRecordingStatus = false;
 };
 
 #endif // VIDEOCAPTURE_H
