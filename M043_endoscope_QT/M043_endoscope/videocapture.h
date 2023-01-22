@@ -14,6 +14,8 @@ public:
     void SetCameraIndex(int index);
     void SetRecordingMode(bool status);
     bool GetRecordingStatus();
+    void InitSaveImage();
+    void SaveImage();
 
     QPixmap pixmap() const
     {
@@ -28,10 +30,16 @@ protected:
     void run() override;
 
 private:
+    void InitVideoWriter();
+    void GetCurrentDate(std::string* data);
+
+private:
     QPixmap mPixmap;
     cv::Mat mFrame;
     cv::VideoCapture mVideoCap;
     cv::VideoWriter mVideoWriter;
+    bool mIsVideoDummperInit = false;
+    bool mSaveImageFlag = false;
     uint8_t index_ = 0;
     QImage cvMatToQImage(const cv::Mat &inMat);
     QPixmap cvMatToQPixmap(const cv::Mat &inMat);

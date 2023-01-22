@@ -18,7 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
         // TODO:
         // 1. list resolution for given endpoints and allow to seleced by user.
         //    by default set the highest
-        // 2. save capture to file.
+        // 2. Save video and image to desiried location
+        // 3. Refresh list of endpoints
+
         ui->opencvFrame->setPixmap(mOpenCV_videoCapture->pixmap().scaled(640, 480)); // set proper size
     });
 
@@ -73,5 +75,11 @@ void MainWindow::on_startRecording_clicked()
         ui->startRecording->setText("Stop Recording");
     }
     mOpenCV_videoCapture->SetRecordingMode(!status);
+}
+
+
+void MainWindow::on_saveSingleImage_clicked()
+{
+    mOpenCV_videoCapture->InitSaveImage();
 }
 

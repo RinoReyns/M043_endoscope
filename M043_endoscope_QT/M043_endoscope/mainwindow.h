@@ -24,6 +24,8 @@ private slots:
     void on_InitOpenCV_button_clicked();
     void on_startRecording_clicked();
 
+    void on_saveSingleImage_clicked();
+
 private:
     Ui::MainWindow *ui;
     VideoCapture *mOpenCV_videoCapture;

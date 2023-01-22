@@ -2,6 +2,9 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <iostream>
+#include <QDateTime>
+#include <QFile>
+#include <QString>
 
 VideoCapture::VideoCapture(QObject *parent)
     : QThread{parent}
@@ -23,11 +26,47 @@ void VideoCapture::SetRecordingMode(bool status)
     mRecordingStatus = status;
 }
 
+void VideoCapture::InitSaveImage()
+{
+    mSaveImageFlag = true;
+}
+
+void VideoCapture::SaveImage()
+{
+    mSaveImageFlag = false;
+    std::string data;
+    GetCurrentDate(&data);
+    QString data_qt = QString::fromUtf8(data.data(), int(data.size()));
+    QFile file("Endoscope_image_" + data_qt + ".jpg");
+    file.open(QIODevice::WriteOnly);
+    mPixmap.save(&file, "JPG");
+    file.close();
+}
+
+void VideoCapture::GetCurrentDate(std::string* data)
+{
+    QDateTime date = QDateTime::currentDateTime();
+    QString formattedTime = date.toString("dd_MM_yyyy_hh_mm_ss");
+    *data = formattedTime.toUtf8().constData();
+}
+
+void VideoCapture::InitVideoWriter()
+{
+    std::string data;
+    GetCurrentDate(&data);
+    mVideoWriter = cv::VideoWriter("Endoscope_video" + data + ".mp4",
+                                   cv::VideoWriter::fourcc('a', 'v', 'c', '1'),
+                                   10,
+                                   cv::Size_(640, 480));
+
+}
+
 void VideoCapture::run()
 {
-    mVideoCap = cv::VideoCapture(this->index_);
-    mVideoWriter = cv::VideoWriter("outcpp.mp4", cv::VideoWriter::fourcc('a', 'v', 'c', '1') , 10, cv::Size_(640, 480));
+    mVideoCap.release();
+    mVideoWriter.release();
 
+    mVideoCap = cv::VideoCapture(this->index_);
 
     if (mVideoCap.isOpened())
     {
@@ -37,12 +76,26 @@ void VideoCapture::run()
             if (! mFrame.empty())
             {
                 mPixmap = cvMatToQPixmap(mFrame);
-                // TODO:
-                // make sure that you can stop and rerecord one more time
+                if (mSaveImageFlag)
+                {
+                   SaveImage();
+                }
 
                 if (mRecordingStatus)
                 {
+                    if (!mIsVideoDummperInit)
+                    {
+                        InitVideoWriter();
+                        mIsVideoDummperInit = true;
+                    }
                     mVideoWriter.write(mFrame);
+                }
+                // TODO:
+                // optimize this else
+                else
+                {
+                    mVideoWriter.release();
+                    mIsVideoDummperInit = false;
                 }
                 emit newPixmapCaptured();
             }
