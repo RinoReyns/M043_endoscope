@@ -44,6 +44,7 @@ private:
     QImage cvMatToQImage(const cv::Mat &inMat);
     QPixmap cvMatToQPixmap(const cv::Mat &inMat);
     bool mRecordingStatus = false;
+    const QString mDumpFolder = "recording_images";
 };
 
 #endif // VIDEOCAPTURE_H

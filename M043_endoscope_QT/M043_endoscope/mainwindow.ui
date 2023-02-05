@@ -58,16 +58,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit"/>
-      </item>
      </layout>
     </item>
     <item>

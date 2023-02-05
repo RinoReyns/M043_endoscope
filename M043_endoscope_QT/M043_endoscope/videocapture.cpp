@@ -5,10 +5,15 @@
 #include <QDateTime>
 #include <QFile>
 #include <QString>
+#include <QDir>
 
 VideoCapture::VideoCapture(QObject *parent)
     : QThread{parent}
 {
+    if (!QDir().exists(mDumpFolder))
+    {
+        QDir().mkdir(mDumpFolder);
+    }
 }
 
 void VideoCapture::SetCameraIndex(int index)
@@ -37,7 +42,7 @@ void VideoCapture::SaveImage()
     std::string data;
     GetCurrentDate(&data);
     QString data_qt = QString::fromUtf8(data.data(), int(data.size()));
-    QFile file("Endoscope_image_" + data_qt + ".jpg");
+    QFile file(mDumpFolder + "\\Endoscope_image_" + data_qt + ".jpg");
     file.open(QIODevice::WriteOnly);
     mPixmap.save(&file, "JPG");
     file.close();
@@ -54,7 +59,7 @@ void VideoCapture::InitVideoWriter()
 {
     std::string data;
     GetCurrentDate(&data);
-    mVideoWriter = cv::VideoWriter("Endoscope_video" + data + ".mp4",
+    mVideoWriter = cv::VideoWriter(mDumpFolder.toStdString() + "\\Endoscope_video" + data + ".mp4",
                                    cv::VideoWriter::fourcc('a', 'v', 'c', '1'),
                                    10,
                                    cv::Size_(640, 480));
@@ -63,6 +68,7 @@ void VideoCapture::InitVideoWriter()
 
 void VideoCapture::run()
 {
+
     mVideoCap.release();
     mVideoWriter.release();
 
